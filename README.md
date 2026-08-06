@@ -1,8 +1,6 @@
 # Vibecoded Site Audit Skill
 
-A Cursor skill that audits vibe-coded websites the way you'd audit them after a week of doomscrolling Twitter threads about people shipping React apps with the default favicon still in `public/`.
-
-It walks a repo (and a live URL if you give one), checks the usual footguns, and writes a report. It does **not** start rewriting your app unless you ask.
+Skill that audits vibe-coded websites. It scans your repo (and a live URL if you give one), checks the usual mistakes/vulnerabilities, and writes a report. It does **not** implement changes unless you ask.
 
 ## What it catches
 
@@ -11,11 +9,13 @@ Stuff that shows up again and again on AI-built sites:
 - Empty view-source / CSR-only shells that look fine in the browser and thin to crawlers
 - Default Vite / React tab titles, missing meta descriptions, no OG image
 - Sitemap missing or "sitemap.xml" that is actually your SPA HTML because of a catch-all rewrite
-- `/favicon.ico` still the React atom while your fancy PNG links look correct in Chrome (GA and Search Console love that one)
+- `/favicon.ico` still the React atom while your fancy PNG links look correct in Chrome
 - Production source maps hanging out in public
 - Login screens with tokens in `localStorage`, client-only admin checks, no rate limits
 - Supabase with RLS off, or the service role key living somewhere the browser can see it
 - Indexes and pagination that work at 100 users and fall over closer to 1,000
+- Session/JWT in localStorage / sessionStorage
+- Authorization on server. Admin/role checks only in React/client (hide button ≠ secure). Every privileged API/DB path must enforce auth server-side (RLS, middleware, edge functions).
 
 Plus a short list of extras when they apply (CORS wide open, UI-only paywalls, that sort of thing).
 
@@ -48,7 +48,7 @@ Project install (shares with whoever clones the project): put the same folder at
 
 ## How to run it
 
-In Cursor, say something like:
+In Cursor/Claude/Codex, say something like:
 
 - `@vibe-site-audit` audit this repo
 - use vibe-site-audit on https://yoursite.com
