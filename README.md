@@ -1,6 +1,6 @@
 # Vibecoded Site Audit Skill
 
-Skill that audits vibe-coded websites. It scans your repo (and a live URL if you give one), checks the usual mistakes/vulnerabilities, and writes a report. It does **not** implement changes unless you ask.
+Skill that audits vibe-coded websites. Same `SKILL.md` works in **Cursor**, **Claude Code**, and **Codex**. It scans your repo (and a live URL if you give one), checks the usual mistakes and vulns, and writes a report. It does **not** implement changes unless you ask.
 
 ## What it catches
 
@@ -9,52 +9,96 @@ Stuff that shows up again and again on AI-built sites:
 - Empty view-source / CSR-only shells that look fine in the browser and thin to crawlers
 - Default Vite / React tab titles, missing meta descriptions, no OG image
 - Sitemap missing or "sitemap.xml" that is actually your SPA HTML because of a catch-all rewrite
-- `/favicon.ico` still the React atom while your fancy PNG links look correct in Chrome
+- `/favicon.ico` still the React atom while your fancy PNG links look correct in Chrome (GA and Search Console love that one)
 - Production source maps hanging out in public
-- Login screens with tokens in `localStorage`, client-only admin checks, no rate limits
+- Login screens with tokens in `localStorage` / `sessionStorage`, client-only admin checks, no rate limits
+- Admin/role checks only in React (hide button ≠ secure). Privileged API/DB paths need server-side authz (RLS, middleware, edge functions)
 - Supabase with RLS off, or the service role key living somewhere the browser can see it
 - Indexes and pagination that work at 100 users and fall over closer to 1,000
-- Session/JWT in localStorage / sessionStorage
-- Authorization on server. Admin/role checks only in React/client (hide button ≠ secure). Every privileged API/DB path must enforce auth server-side (RLS, middleware, edge functions).
 
 Plus a short list of extras when they apply (CORS wide open, UI-only paywalls, that sort of thing).
 
 ## Install
 
-Personal install (works across all your projects):
+Clone this repo, then copy the `vibe-site-audit` folder into the skills directory for your tool. You want `…/vibe-site-audit/SKILL.md` on disk afterward.
 
-1. Clone this repo somewhere convenient.
-2. Copy the `vibe-site-audit` folder into Cursor's skills directory:
+### Cursor
 
-**Windows**
+**Personal (all projects)**
 
-```text
-%USERPROFILE%\.cursor\skills\vibe-site-audit\
-```
+| OS | Path |
+| --- | --- |
+| Windows | `%USERPROFILE%\.cursor\skills\vibe-site-audit\` |
+| macOS / Linux | `~/.cursor/skills/vibe-site-audit/` |
 
-**macOS / Linux**
+**Project-scoped:** `.cursor/skills/vibe-site-audit/` in the repo.
 
-```text
-~/.cursor/skills/vibe-site-audit/
-```
+### Claude Code
 
-You want this on disk:
+**Personal (all projects)**
 
 ```text
-~/.cursor/skills/vibe-site-audit/SKILL.md
+~/.claude/skills/vibe-site-audit/SKILL.md
 ```
 
-Project install (shares with whoever clones the project): put the same folder at `.cursor/skills/vibe-site-audit/` inside the repo.
+**Project-scoped:** `.claude/skills/vibe-site-audit/` in the repo.
+
+Restart Claude Code after you drop the folder in (or start a new session) so it picks up the skill metadata.
+
+### Codex
+
+**Personal (all projects)** — either of these is common depending on your Codex version:
+
+```text
+~/.codex/skills/vibe-site-audit/SKILL.md
+~/.agents/skills/vibe-site-audit/SKILL.md
+```
+
+**Project-scoped:** `.agents/skills/vibe-site-audit/` in the repo.
+
+You can also install from GitHub inside Codex with `$skill-installer` and point it at this repo / the `vibe-site-audit` folder. Restart Codex if the new skill doesn’t show up right away.
+
+Quick copy examples (macOS / Linux):
+
+```bash
+git clone https://github.com/sstanley-yelnatss/vibecoded-site-audit-skill.git
+cd vibecoded-site-audit-skill
+
+# Cursor
+cp -R vibe-site-audit ~/.cursor/skills/
+
+# Claude Code
+cp -R vibe-site-audit ~/.claude/skills/
+
+# Codex (pick the path your install uses)
+cp -R vibe-site-audit ~/.codex/skills/
+# or: cp -R vibe-site-audit ~/.agents/skills/
+```
+
+On Windows PowerShell, same idea with `Copy-Item -Recurse`.
 
 ## How to run it
 
-In Cursor/Claude/Codex, say something like:
+Point it at a repo path and optionally a live URL.
+
+**Cursor**
 
 - `@vibe-site-audit` audit this repo
 - use vibe-site-audit on https://yoursite.com
-- run a vibe site audit against `E:\path\to\site`
 
-The skill is set to explicit invoke (`disable-model-invocation: true`), so naming it is the reliable way.
+Cursor has `disable-model-invocation: true` on this skill, so naming it (`@vibe-site-audit` or “use vibe-site-audit”) is the reliable trigger.
+
+**Claude Code**
+
+- `/vibe-site-audit` against this repo
+- or: run the vibe-site-audit skill on https://yoursite.com
+
+The folder name becomes the slash command. You can also just describe the audit; Claude may load it from the description.
+
+**Codex**
+
+- `$vibe-site-audit` audit this repo
+- or mention vibe-site-audit / ask for a vibe-coded site audit in plain language
 
 ## What you get back
 
@@ -71,8 +115,9 @@ The agent stops after the report. No silent refactors. If you want fixes, you sa
 
 ```text
 vibe-site-audit/
-  SKILL.md    # the skill Cursor loads
+  SKILL.md    # loaded by Cursor / Claude Code / Codex
 README.md
+LICENSE
 ```
 
 ## Notes
